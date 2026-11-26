@@ -1,0 +1,266 @@
+@using System.Text.Json
+@model ServiceHub.Models.ViewModels.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    var monthLabels = JsonSerializer.Serialize(Model.MonthlyStats.Select(s => s.Month));
+    var monthCounts = JsonSerializer.Serialize(Model.MonthlyStats.Select(s => s.Count));
+    var monthRevenue = JsonSerializer.Serialize(Model.MonthlyStats.Select(s => s.Revenue));
+    var catLabels = JsonSerializer.Serialize(Model.CategoryStats.Select(s => s.CategoryName));
+    var catCounts = JsonSerializer.Serialize(Model.CategoryStats.Select(s => s.Count));
+}
+
+<div style="background:linear-gradient(135deg,#0F172A,#1E1B4B);padding:48px 0 32px;">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 style="color:white;font-weight:800;font-size:2rem;margin-bottom:8px;">
+                    <i class="fas fa-shield-alt me-2" style="color:#818CF8;"></i>Admin Dashboard
+                </h1>
+                <p style="color:rgba(255,255,255,0.6);margin:0;">System overview and analytics</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a asp-controller="Admin" asp-action="Users" class="btn-hub-ghost" style="color:white;border-color:rgba(255,255,255,0.2);">
+                    <i class="fas fa-users me-1"></i>Users
+                </a>
+                <a asp-controller="Admin" asp-action="Bookings" class="btn-hub-ghost" style="color:white;border-color:rgba(255,255,255,0.2);">
+                    <i class="fas fa-calendar me-1"></i>Bookings
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container" style="padding:40px 15px;">
+    <!-- KPI Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-6 col-lg-3">
+            <div class="stat-card primary fade-in-up">
+                <div class="stat-icon primary"><i class="fas fa-rupee-sign"></i></div>
+                <div class="stat-value">&#8377;@Model.TotalRevenue.ToString("N0")</div>
+                <div class="stat-label">Total Revenue</div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card warning fade-in-up fade-delay-1">
+                <div class="stat-icon warning"><i class="fas fa-calendar-check"></i></div>
+                <div class="stat-value">@Model.TotalBookings</div>
+                <div class="stat-label">Total Bookings</div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card success fade-in-up fade-delay-2">
+                <div class="stat-icon success"><i class="fas fa-tools"></i></div>
+                <div class="stat-value">@Model.TotalProviders</div>
+                <div class="stat-label">Active Providers</div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card danger fade-in-up fade-delay-3">
+                <div class="stat-icon danger"><i class="fas fa-users"></i></div>
+                <div class="stat-value">@Model.TotalCustomers</div>
+                <div class="stat-label">Total Customers</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row g-4 mb-5">
+        <!-- Monthly Trend Chart -->
+        <div class="col-lg-8">
+            <div class="chart-container h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h5 style="font-weight:800;margin-bottom:2px;">Monthly Booking Trends</h5>
+                        <p style="color:#64748B;font-size:0.82rem;margin:0;">Last 6 months performance</p>
+                    </div>
+                    <span style="background:rgba(79,70,229,0.08);color:#4F46E5;padding:4px 12px;border-radius:999px;font-size:0.75rem;font-weight:600;">
+                        <i class="fas fa-chart-line me-1"></i>Overview
+                    </span>
+                </div>
+                <canvas id="bookingTrendChart" height="250"></canvas>
+            </div>
+        </div>
+
+        <!-- Category Pie Chart -->
+        <div class="col-lg-4">
+            <div class="chart-container h-100">
+                <div class="mb-3">
+                    <h5 style="font-weight:800;margin-bottom:2px;">Bookings by Category</h5>
+                    <p style="color:#64748B;font-size:0.82rem;margin:0;">Distribution overview</p>
+                </div>
+                <canvas id="categoryChart" height="250"></canvas>
+                <!-- Legend -->
+                <div class="mt-3">
+                    @{
+                        var pieColors = new[] { "#4F46E5", "#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6" };
+                        for (int ci = 0; ci < Math.Min(Model.CategoryStats.Count, 6); ci++)
+                        {
+                            var stat = Model.CategoryStats[ci];
+                            var color = pieColors[ci % pieColors.Length];
+                            <div class="d-flex align-items-center justify-content-between mb-1" style="font-size:0.8rem;">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div style="width:10px;height:10px;border-radius:3px;background:@color;flex-shrink:0;"></div>
+                                    <span style="color:#374151;">@stat.CategoryName</span>
+                                </div>
+                                <span style="font-weight:700;color:#4F46E5;">@stat.Count</span>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="row g-3 mb-5">
+        @{
+            var quickLinks = new[]
+            {
+                new { icon = "fas fa-users", title = "Manage Users", desc = "View, lock, and verify users", url = Url.Action("Users", "Admin"), color = "#4F46E5" },
+                new { icon = "fas fa-th-large", title = "Categories", desc = "Add and manage service categories", url = Url.Action("Categories", "Admin"), color = "#3B82F6" },
+                new { icon = "fas fa-calendar-alt", title = "All Bookings", desc = "Monitor all system bookings", url = Url.Action("Bookings", "Admin"), color = "#10B981" },
+                new { icon = "fas fa-star", title = "Reviews", desc = "View all customer reviews", url = Url.Action("Reviews", "Admin"), color = "#F59E0B" }
+            };
+        }
+        @foreach (var link in quickLinks)
+        {
+            <div class="col-6 col-md-3">
+                <a href="@link.url" class="text-decoration-none d-block">
+                    <div class="card-hub p-4 text-center h-100">
+                        <div style="width:56px;height:56px;background:@link.color + '1A';border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+                            <i class="@link.icon" style="color:@link.color;font-size:1.3rem;"></i>
+                        </div>
+                        <div style="font-weight:700;margin-bottom:4px;font-size:0.95rem;">@link.title</div>
+                        <div style="font-size:0.78rem;color:#94A3B8;">@link.desc</div>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+
+    <!-- Recent Bookings Table -->
+    <div class="card-hub overflow-hidden">
+        <div class="p-4" style="border-bottom:1px solid #E2E8F0;">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 style="font-weight:800;margin:0;">Recent Bookings</h5>
+                <a asp-controller="Admin" asp-action="Bookings" class="btn-hub-ghost" style="font-size:0.82rem;padding:6px 14px;">View All</a>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hub mb-0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Customer</th>
+                        <th>Service</th>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var booking in Model.RecentBookings)
+                    {
+                        <tr>
+                            <td style="font-weight:600;color:#4F46E5;">#@booking.Id</td>
+                            <td style="font-size:0.88rem;">@booking.Customer?.FullName</td>
+                            <td style="font-size:0.88rem;" class="truncate-2" style="max-width:200px;">@booking.Service?.Title</td>
+                            <td style="font-size:0.85rem;color:#64748B;">@booking.BookingDate.ToString("MMM d, yyyy")</td>
+                            <td style="font-weight:700;color:#0F172A;">&#8377;@booking.TotalAmount.ToString("N0")</td>
+                            <td><span class="badge-status badge-@booking.Status.ToString().ToLower()">@booking.Status</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.color = '#64748B';
+
+    // Monthly Trend Chart
+    const trendCtx = document.getElementById('bookingTrendChart').getContext('2d');
+    const trendGradient = trendCtx.createLinearGradient(0, 0, 0, 300);
+    trendGradient.addColorStop(0, 'rgba(79,70,229,0.3)');
+    trendGradient.addColorStop(1, 'rgba(79,70,229,0)');
+
+    new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels: @Html.Raw(monthLabels),
+            datasets: [{
+                label: 'Bookings',
+                data: @Html.Raw(monthCounts),
+                borderColor: '#4F46E5',
+                backgroundColor: trendGradient,
+                borderWidth: 2.5,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#4F46E5',
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }, {
+                label: 'Revenue ($)',
+                data: @Html.Raw(monthRevenue),
+                borderColor: '#10B981',
+                backgroundColor: 'transparent',
+                borderWidth: 2,
+                fill: false,
+                tension: 0.4,
+                pointBackgroundColor: '#10B981',
+                pointRadius: 4,
+                yAxisID: 'y2'
+            }]
+        },
+        options: {
+            responsive: true,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                x: { grid: { color: '#F1F5F9' } },
+                y: {
+                    grid: { color: '#F1F5F9' },
+                    beginAtZero: true,
+                    title: { display: true, text: 'Bookings' }
+                },
+                y2: {
+                    position: 'right',
+                    grid: { drawOnChartArea: false },
+                    beginAtZero: true,
+                    title: { display: true, text: 'Revenue ($)' }
+                }
+            },
+            plugins: {
+                legend: { position: 'top', labels: { padding: 20, usePointStyle: true } }
+            }
+        }
+    });
+
+    // Category Pie Chart
+    const catCtx = document.getElementById('categoryChart').getContext('2d');
+    new Chart(catCtx, {
+        type: 'doughnut',
+        data: {
+            labels: @Html.Raw(catLabels),
+            datasets: [{
+                data: @Html.Raw(catCounts),
+                backgroundColor: ['#4F46E5','#3B82F6','#10B981','#F59E0B','#EF4444','#8B5CF6'],
+                borderWidth: 2,
+                borderColor: '#fff',
+                hoverBorderWidth: 3,
+                hoverOffset: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            cutout: '65%',
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+</script>
+}

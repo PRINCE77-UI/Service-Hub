@@ -1,0 +1,94 @@
+@using ServiceHub.Models
+@model ServiceHub.Models.ViewModels.ReviewCreateViewModel
+@{
+    ViewData["Title"] = "Leave a Review";
+}
+
+<div class="container" style="max-width:600px;padding:60px 15px;">
+    <div class="card-hub p-5">
+        <div class="text-center mb-4">
+            <div style="width:72px;height:72px;background:linear-gradient(135deg,#F59E0B,#FCD34D);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+                <i class="fas fa-star" style="color:white;font-size:2rem;"></i>
+            </div>
+            <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:6px;">Leave a Review</h2>
+            <p style="color:#64748B;font-size:0.9rem;">Share your experience with <strong>@Model.Booking?.Service?.Title</strong></p>
+        </div>
+
+        <form asp-controller="Bookings" asp-action="Review" method="post" class="form-hub">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="BookingId" value="@Model.BookingId" />
+            <input type="hidden" name="ServiceId" value="@Model.ServiceId" />
+            <input type="hidden" name="Rating" id="ratingValue" value="5" />
+
+            <!-- Star Rating -->
+            <div class="mb-4 text-center">
+                <label class="form-label d-block mb-2" style="font-size:1rem;font-weight:700;">Your Rating</label>
+                <div class="d-flex justify-content-center gap-2 mb-2">
+                    @for (int i = 5; i >= 1; i--)
+                    {
+                        <label class="star-interactive" data-value="@i" style="font-size:2.5rem;cursor:pointer;color:#CBD5E1;transition:all 0.15s;">
+                            <i class="fas fa-star"></i>
+                        </label>
+                    }
+                </div>
+                <div id="ratingText" style="font-size:0.85rem;color:#64748B;">Excellent!</div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label"><i class="fas fa-comment me-1"></i>Your Review</label>
+                <textarea name="Comment" class="form-control" rows="5"
+                          placeholder="Tell others about your experience. What went well? What could be improved?"
+                          style="resize:vertical;"></textarea>
+                <div style="font-size:0.75rem;color:#94A3B8;margin-top:4px;">Min. 20 characters recommended</div>
+            </div>
+
+            <!-- Booking Summary -->
+            <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:14px;margin-bottom:24px;">
+                <div style="font-size:0.8rem;color:#64748B;">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span><i class="fas fa-calendar me-1"></i>Service Date:</span>
+                        <strong>@Model.Booking?.BookingDate.ToString("MMM d, yyyy")</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span><i class="fas fa-rupee-sign me-1"></i>Amount Paid:</span>
+                        <strong>&#8377;@Model.Booking?.TotalAmount.ToString("N0")</strong>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-hub-primary w-100" style="padding:14px;">
+                <i class="fas fa-paper-plane me-2"></i>Submit Review
+            </button>
+            <a asp-controller="Bookings" asp-action="MyBookings" class="btn-hub-ghost w-100 mt-2 d-block text-center" style="padding:12px;">
+                Skip for Now
+            </a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    const ratingTexts = ['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent!'];
+    const stars = document.querySelectorAll('.star-interactive');
+    let currentRating = 5;
+
+    function updateStars(val) {
+        stars.forEach(s => {
+            s.style.color = parseInt(s.dataset.value) <= val ? '#F59E0B' : '#CBD5E1';
+        });
+        document.getElementById('ratingText').textContent = ratingTexts[val] || '';
+        document.getElementById('ratingValue').value = val;
+        currentRating = val;
+    }
+
+    stars.forEach(star => {
+        star.addEventListener('click', () => updateStars(parseInt(star.dataset.value)));
+        star.addEventListener('mouseenter', () => {
+            stars.forEach(s => s.style.color = parseInt(s.dataset.value) <= parseInt(star.dataset.value) ? '#F59E0B' : '#CBD5E1');
+        });
+        star.addEventListener('mouseleave', () => updateStars(currentRating));
+    });
+
+    updateStars(5); // Default 5 stars
+</script>
+}

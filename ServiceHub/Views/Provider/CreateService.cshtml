@@ -1,0 +1,145 @@
+@using ServiceHub.Models
+@model ServiceHub.Models.ViewModels.ServiceCreateEditViewModel
+@{
+    ViewData["Title"] = "Create Service";
+}
+
+<div style="background:linear-gradient(135deg,#0F172A,#064E3B);padding:40px 0 28px;">
+    <div class="container">
+        <h1 style="color:white;font-weight:800;font-size:1.8rem;margin-bottom:6px;">
+            <i class="fas fa-plus-circle me-2" style="color:#34D399;"></i>Create New Service
+        </h1>
+        <p style="color:rgba(255,255,255,0.6);margin:0;">List your professional service to start receiving bookings</p>
+    </div>
+</div>
+
+<div class="container" style="max-width:800px;padding:40px 15px;">
+    <form asp-controller="Provider" asp-action="CreateService" method="post" class="form-hub">
+        @Html.AntiForgeryToken()
+
+        <div class="card-hub p-4 mb-4">
+            <h5 style="font-weight:700;margin-bottom:20px;font-size:0.95rem;text-transform:uppercase;letter-spacing:0.06em;color:#374151;">
+                <i class="fas fa-info-circle me-2 text-primary"></i>Basic Information
+            </h5>
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label">Service Title <span class="text-danger">*</span></label>
+                    <input type="text" name="Title" class="form-control" placeholder="e.g., Professional Electrical Installation & Repair" required value="@Model.Title" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Category <span class="text-danger">*</span></label>
+                    <select name="CategoryId" class="form-select" required>
+                        <option value="">-- Select Category --</option>
+                        @foreach (var cat in Model.Categories)
+                        {
+                            <option value="@cat.Id" selected="@(Model.CategoryId == cat.Id ? "selected" : null)">@cat.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Price <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text">&#8377;</span>
+                        <input type="number" name="Price" class="form-control" placeholder="0.00" step="0.01" min="0" required value="@Model.Price" />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Price Type</label>
+                    <select name="PriceType" class="form-select">
+                        <option value="Hourly" selected="@(Model.PriceType == PriceType.Hourly ? "selected" : null)">Hourly</option>
+                        <option value="Fixed" selected="@(Model.PriceType == PriceType.Fixed ? "selected" : null)">Fixed</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Description</label>
+                    <textarea name="Description" class="form-control" rows="4"
+                              placeholder="Describe your service in detail. Include your experience, what's included, and any special qualifications...">@Model.Description</textarea>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Service Image URL</label>
+                    <input type="url" name="ImageUrl" class="form-control" placeholder="https://images.unsplash.com/photo-..." value="@Model.ImageUrl" />
+                    <div style="font-size:0.75rem;color:#94A3B8;margin-top:4px;">Paste an Unsplash or direct image URL to showcase your service</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-hub p-4 mb-4">
+            <h5 style="font-weight:700;margin-bottom:20px;font-size:0.95rem;text-transform:uppercase;letter-spacing:0.06em;color:#374151;">
+                <i class="fas fa-map-marker-alt me-2 text-primary"></i>Location & Schedule
+            </h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">City <span class="text-danger">*</span></label>
+                    <select name="City" class="form-select" required>
+                        <option value="">-- Select Indian City --</option>
+                        @foreach (var city in ServiceHub.Models.IndianCities.All)
+                        {
+                            <option value="@city" selected="@(Model.City == city ? "selected" : null)">@city</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Service Area</label>
+                    <input type="text" name="ServiceArea" class="form-control" placeholder="e.g. Andheri, Bandra, Powai" value="@Model.ServiceArea" />
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Available Work Days</label>
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach (var day in new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" })
+                        {
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input day-check" type="checkbox" id="day@(day)" value="@day"
+                                       @(Model.WorkDays?.Contains(day) == true ? "checked" : "") />
+                                <label class="form-check-label" for="day@(day)">@day</label>
+                            </div>
+                        }
+                    </div>
+                    <input type="hidden" name="WorkDays" id="WorkDaysHidden" value="@Model.WorkDays" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Work Start Time</label>
+                    <input type="time" name="WorkStartTime" class="form-control"
+                           value="@Model.WorkStartTime?.ToString(@"hh\:mm")" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Work End Time</label>
+                    <input type="time" name="WorkEndTime" class="form-control"
+                           value="@Model.WorkEndTime?.ToString(@"hh\:mm")" />
+                </div>
+            </div>
+        </div>
+
+        <div class="card-hub p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div style="font-weight:700;margin-bottom:4px;">Service Status</div>
+                    <div style="font-size:0.85rem;color:#64748B;">Make this listing visible to customers</div>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" name="IsActive" id="isActive" @(Model.IsActive ? "checked" : "") style="width:48px;height:24px;" />
+                    <label class="form-check-label ms-2" for="isActive" style="font-weight:600;color:#10B981;">Active</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex gap-3">
+            <button type="submit" class="btn-hub-primary" style="padding:14px 32px;">
+                <i class="fas fa-rocket me-2"></i>Create Service
+            </button>
+            <a asp-controller="Provider" asp-action="Dashboard" class="btn-hub-ghost" style="padding:13px 24px;">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+<script>
+    const dayChecks = document.querySelectorAll('.day-check');
+    const hiddenInput = document.getElementById('WorkDaysHidden');
+    function updateDays() {
+        const selected = [...dayChecks].filter(c => c.checked).map(c => c.value);
+        hiddenInput.value = selected.join(',');
+    }
+    dayChecks.forEach(c => c.addEventListener('change', updateDays));
+    updateDays();
+</script>
+}

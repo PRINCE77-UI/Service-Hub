@@ -1,0 +1,235 @@
+@inject ServiceHub.Data.ApplicationDbContext LayoutDbContext
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="ServiceHub — India's Premier On-Demand Home & Local Services Platform. Book verified electricians, plumbers, cleaners, tutors and more across top Indian cities." />
+    <title>@ViewData["Title"] — ServiceHub India</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+
+    <!-- Bootstrap 5.3 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    @RenderSection("Styles", required: false)
+</head>
+<body>
+
+@{
+    var prominentCities = ServiceHub.Models.IndianCities.FeaturedCities;
+}
+
+<!-- ── COMPACT, SLEEK & FIXED HEADER ───────────────────────────────── -->
+<header class="sticky-top header-hub-wrapper">
+    <nav class="navbar navbar-expand-lg navbar-hub-compact px-3 px-lg-4">
+        <div class="container-fluid p-0">
+            
+            <!-- LEFT: Brand Logo + Compact City Selector -->
+            <div class="d-flex align-items-center gap-2">
+                <a class="navbar-brand d-flex align-items-center gap-2 m-0 p-0" asp-controller="Home" asp-action="Index">
+                    <span class="brand-logo-icon-compact">
+                        <i class="fas fa-layer-group"></i>
+                    </span>
+                    <span class="brand-text-compact">Service<span>Hub</span></span>
+                </a>
+
+                <!-- City Selector -->
+                <div class="dropdown header-city-dropdown ms-1 ms-sm-2">
+                    <button class="btn btn-city-compact dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Choose City">
+                        <i class="fas fa-location-dot text-danger"></i>
+                        <span class="city-name-text">Rajkot</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-dark shadow-lg city-compact-menu">
+                        <li class="dropdown-header text-uppercase text-light opacity-50 px-3 py-1" style="font-size:0.7rem;">Select Hub</li>
+                        @foreach (var c in prominentCities)
+                        {
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center justify-content-between" asp-controller="Services" asp-action="Browse" asp-route-city="@c">
+                                    <span>@c</span>
+                                    @if (c == "Rajkot")
+                                    {
+                                        <i class="fas fa-check text-primary" style="font-size:0.7rem;"></i>
+                                    }
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Mobile Toggle -->
+            <button class="navbar-toggler border-0 text-white p-1 ms-auto d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbarNav" aria-controls="mainNavbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="fas fa-bars fs-5"></i>
+            </button>
+
+            <!-- SINGLE COLLAPSIBLE CONTAINER FOR CENTER & RIGHT ITEMS -->
+            <div class="collapse navbar-collapse" id="mainNavbarNav">
+                
+                <!-- CENTER: Navigation Links (SINGLE INSTANCE) -->
+                <ul class="navbar-nav mx-auto align-items-lg-center gap-lg-3 my-2 my-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link compact-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link compact-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Services" ? "active" : "")" asp-controller="Services" asp-action="Browse">Services</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link compact-nav-link" href="/#categories">Categories</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link compact-nav-link" href="/#howItWorks">How It Works</a>
+                    </li>
+                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Customer"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link compact-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Bookings" && ViewContext.RouteData.Values["action"]?.ToString() == "MyBookings" ? "active" : "")" asp-controller="Bookings" asp-action="MyBookings">My Bookings</a>
+                        </li>
+                    }
+                </ul>
+
+                <!-- RIGHT: Actions Area -->
+                <div class="d-flex align-items-center gap-2 my-2 my-lg-0">
+                    <button type="button" class="btn btn-nav-search" data-bs-toggle="modal" data-bs-target="#quickSearchModal" title="Search">
+                        <i class="fas fa-search"></i>
+                    </button>
+
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <div class="dropdown">
+                            <button class="btn btn-nav-bell position-relative" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-bell"></i>
+                                <span class="btn-nav-bell-dot"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow-lg p-0 notify-dropdown" style="width: 280px;">
+                                <li class="px-3 py-2 border-bottom border-secondary border-opacity-25 d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold text-white small">Notifications</span>
+                                    <span class="badge bg-primary-subtle text-primary" style="font-size:0.65rem;">3 New</span>
+                                </li>
+                                <li class="p-2 text-center"><span class="text-secondary" style="font-size:0.72rem;">All caught up!</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="dropdown">
+                            <a class="d-flex align-items-center text-decoration-none dropdown-toggle no-caret" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="nav-avatar-initials">@(User.Identity.Name?.FirstOrDefault().ToString().ToUpper() ?? "U")</div>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow-lg border-0 p-2" style="min-width: 200px;">
+                                <li class="px-3 py-2 border-bottom border-secondary border-opacity-25">
+                                    <div class="fw-bold text-white text-truncate small">@User.Identity?.Name</div>
+                                </li>
+                                <li>
+                                    <form method="post" asp-controller="Account" asp-action="Logout" class="m-0">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="dropdown-item py-1 px-3 text-danger small">
+                                            <i class="fas fa-arrow-right-from-bracket me-2"></i>Sign Out
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <a class="btn-nav-login text-white text-decoration-none px-2" asp-controller="Account" asp-action="Login">Login</a>
+                        <a class="btn btn-primary btn-sm rounded-pill px-3 fw-semibold ms-1" asp-controller="Account" asp-action="Register">Sign Up</a>
+                    }
+                </div>
+
+            </div>
+        </div>
+    </nav>
+</header>
+
+<!-- Quick Search Modal -->
+<div class="modal fade" id="quickSearchModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content search-modal-content border-0">
+            <div class="modal-header border-0 pb-0">
+                <h6 class="modal-title fw-bold text-white"><i class="fas fa-search text-primary me-2"></i>Instant Search</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form asp-controller="Services" asp-action="Browse" method="get">
+                    <div class="input-group mb-3">
+                        <input type="text" name="keyword" class="form-control border-0 bg-dark text-white py-2 px-3" placeholder="Search services..." />
+                        <button class="btn btn-primary" type="submit">Search</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<main role="main">
+    @RenderBody()
+</main>
+
+<!-- ── RESTORED ORIGINAL RICH FOOTER ─────────────────────────────────── -->
+<footer class="footer-compact mt-5">
+    <div class="container">
+        <!-- Top Row: Logo, Essential Links, Social Icons -->
+        <div class="row align-items-center py-4 gy-3">
+            <!-- Left: Brand Logo & Tagline -->
+            <div class="col-12 col-md-4 text-center text-md-start">
+                <a class="d-inline-flex align-items-center gap-2 text-decoration-none" asp-controller="Home" asp-action="Index">
+                    <span class="brand-logo-icon-compact">
+                        <i class="fas fa-layer-group"></i>
+                    </span>
+                    <span class="brand-text-compact">Service<span>Hub</span></span>
+                </a>
+                <span class="footer-tagline ms-2 d-none d-lg-inline">· On-demand verified services</span>
+            </div>
+
+            <!-- Middle: Essential Navigation Links -->
+            <div class="col-12 col-md-5 text-center">
+                <div class="d-inline-flex flex-wrap justify-content-center gap-3 gap-md-4">
+                    <a asp-controller="Home" asp-action="Index" class="footer-link">Home</a>
+                    <a asp-controller="Services" asp-action="Browse" class="footer-link">Services</a>
+                    <a href="/#categories" class="footer-link">Categories</a>
+                    <a href="/#howItWorks" class="footer-link">How It Works</a>
+                    <a href="mailto:support@servicehub.in" class="footer-link">Contact</a>
+                    <a href="#" class="footer-link">Terms</a>
+                </div>
+            </div>
+
+            <!-- Right: Social Media Links -->
+            <div class="col-12 col-md-3 text-center text-md-end">
+                <div class="d-inline-flex gap-2">
+                    <a href="https://linkedin.com" target="_blank" rel="noopener" class="footer-social-link" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="https://twitter.com" target="_blank" rel="noopener" class="footer-social-link" title="Twitter"><i class="fab fa-x-twitter"></i></a>
+                    <a href="https://instagram.com" target="_blank" rel="noopener" class="footer-social-link" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://github.com" target="_blank" rel="noopener" class="footer-social-link" title="GitHub"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Row: Hairline divider, Copyright & Contact Info -->
+        <div class="footer-bottom-hairline py-3 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2 border-top border-secondary border-opacity-25">
+            <span class="footer-copy text-secondary small">© 2026 ServiceHub. All rights reserved.</span>
+            <div class="d-flex align-items-center gap-3 small">
+                <a href="#" class="footer-sub-link text-secondary text-decoration-none">Privacy Policy</a>
+                <span class="footer-sub-divider text-secondary">·</span>
+                <a href="#" class="footer-sub-link text-secondary text-decoration-none">Security</a>
+                <span class="footer-sub-divider text-secondary">·</span>
+                <span class="footer-contact-tel text-white"><i class="fas fa-phone-alt me-1 text-success"></i>1800-SERVICE</span>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+
+@RenderSection("Scripts", required: false)
+</body>
+</html>

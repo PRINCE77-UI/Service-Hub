@@ -1,0 +1,300 @@
+@model ServiceHub.Models.ViewModels.HomeViewModel
+@{
+    ViewData["Title"] = "Home";
+    Layout = "_Layout";
+}
+
+<!-- â”€â”€ HERO SECTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+<section class="hero-section">
+    <div class="container position-relative" style="z-index:2;">
+        <div class="row justify-content-center text-center mb-5">
+            <div class="col-lg-9">
+                <div class="fade-in-up mb-3">
+                    <span style="background:rgba(99,102,241,0.15);color:#A5B4FC;padding:6px 18px;border-radius:999px;font-size:0.8rem;font-weight:600;border:1px solid rgba(99,102,241,0.25);">
+                        <i class="fas fa-star me-1" style="color:#F59E0B;"></i>
+                        Trusted by 10,000+ customers
+                    </span>
+                </div>
+                <h1 class="hero-title fade-in-up fade-delay-1 mb-4">
+                    Find Trusted Local<br />
+                    <span>Service Professionals</span>
+                </h1>
+                <p class="hero-subtitle fade-in-up fade-delay-2 mb-5 mx-auto" style="max-width:540px;">
+                    Book verified electricians, plumbers, cleaners, tutors and more â€” with real-time availability, transparent pricing, and guaranteed quality.
+                </p>
+
+                <!-- Search Box -->
+                <div class="search-box fade-in-up fade-delay-3">
+                    <form asp-controller="Home" asp-action="Index" method="get" class="row g-0 align-items-center">
+                        <div class="col-12 col-md-4">
+                            <div class="d-flex align-items-center px-3">
+                                <i class="fas fa-search" style="color:rgba(255,255,255,0.4);margin-right:10px;"></i>
+                                <input type="text" name="keyword" class="form-control" placeholder="What service do you need?"
+                                       value="@Model.SearchKeyword" />
+                            </div>
+                        </div>
+                        <div class="divider d-none d-md-block"></div>
+                        <div class="col-12 col-md-3">
+                            <div class="d-flex align-items-center px-3">
+                                <i class="fas fa-map-marker-alt" style="color:rgba(255,255,255,0.4);margin-right:10px;"></i>
+                                <select name="city" class="form-select" style="background:transparent;border:none;color:white;font-size:0.9rem;">
+                                    <option value="" style="background:#1E293B;">All Cities</option>
+                                    @foreach (var c in Model.IndianCities)
+                                    {
+                                        <option value="@c" selected="@(Model.SearchCity == c ? "selected" : null)" style="background:#1E293B;">@c</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="divider d-none d-md-block"></div>
+                        <div class="col-12 col-md-3">
+                            <div class="px-2">
+                                <select name="categoryId" class="form-select">
+                                    <option value="">All Categories</option>
+                                    @foreach (var cat in Model.Categories)
+                                    {
+                                        <option value="@cat.Id" selected="@(Model.SearchCategoryId == cat.Id ? "selected" : null)">@cat.Name</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-2 p-2">
+                            <button type="submit" class="btn-hub-primary w-100">
+                                <i class="fas fa-search me-1"></i>Search
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="row justify-content-center mt-5 fade-in-up fade-delay-4 g-3">
+                    <div class="col-auto">
+                        <div class="d-flex align-items-center gap-2" style="color:rgba(255,255,255,0.7);font-size:0.9rem;">
+                            <i class="fas fa-shield-check" style="color:#10B981;"></i>
+                            <span>Verified Providers</span>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="d-flex align-items-center gap-2" style="color:rgba(255,255,255,0.7);font-size:0.9rem;">
+                            <i class="fas fa-clock" style="color:#3B82F6;"></i>
+                            <span>Real-Time Booking</span>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="d-flex align-items-center gap-2" style="color:rgba(255,255,255,0.7);font-size:0.9rem;">
+                            <i class="fas fa-star" style="color:#F59E0B;"></i>
+                            <span>4.8â˜… Average Rating</span>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="d-flex align-items-center gap-2" style="color:rgba(255,255,255,0.7);font-size:0.9rem;">
+                            <i class="fas fa-lock" style="color:#A78BFA;"></i>
+                            <span>Secure Payments</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- â”€â”€ CATEGORIES SECTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+<section id="categories" class="section-gap">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Browse by <span>Category</span></h2>
+            <div class="gradient-divider mx-auto"></div>
+            <p class="section-subtitle">Explore our wide range of professional service categories</p>
+        </div>
+        <div class="row g-3 justify-content-center">
+            @foreach (var category in Model.Categories)
+            {
+                <div class="col-6 col-sm-4 col-md-3 col-lg-2 fade-in-up">
+                    <a href="@Url.Action("Browse", "Services", new { categoryId = category.Id })" class="text-decoration-none d-block">
+                        <div class="category-card">
+                            <img src="@(category.ImageUrl ?? "/images/default-service.svg")"
+                                 alt="@category.Name" loading="lazy"
+                                 onerror="this.onerror=null;this.src='/images/default-service.svg';" />
+                            <div class="category-card-overlay">
+                                <div class="category-card-icon">
+                                    <i class="@(category.IconClass ?? "fas fa-wrench")"></i>
+                                </div>
+                                <div class="category-card-name">@category.Name</div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- ── HOW IT WORKS ────────────────────────────────────── -->
+<section id="howItWorks" class="section-gap" style="background:white;border-top:1px solid #E2E8F0;border-bottom:1px solid #E2E8F0;">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">How <span>ServiceHub</span> Works</h2>
+            <div class="gradient-divider mx-auto"></div>
+        </div>
+        <div class="row g-4 text-center">
+            @{
+                var steps = new[] {
+                    new { icon = "fas fa-search", color = "#4F46E5", step = "01", title = "Search & Discover", desc = "Browse hundreds of verified local service providers in your city." },
+                    new { icon = "fas fa-calendar-check", color = "#3B82F6", step = "02", title = "Book Instantly", desc = "Pick your time slot and book with real-time conflict detection." },
+                    new { icon = "fas fa-tools", color = "#10B981", step = "03", title = "Get Service Done", desc = "Your professional arrives on time and completes the job." },
+                    new { icon = "fas fa-star", color = "#F59E0B", step = "04", title = "Rate & Review", desc = "Share your experience to help the community find great providers." }
+                };
+            }
+            @foreach (var step in steps)
+            {
+                <div class="col-12 col-sm-6 col-lg-3 fade-in-up">
+                    <div style="position:relative;display:inline-block;margin-bottom:20px;">
+                        <div style="width:80px;height:80px;background:@step.color;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto;box-shadow:0 12px 32px @step.color + '44';">
+                            <i class="@step.icon" style="color:white;font-size:1.8rem;"></i>
+                        </div>
+                        <span style="position:absolute;top:-4px;right:-4px;background:white;border:2px solid @step.color;color:@step.color;font-size:0.7rem;font-weight:800;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;">@step.step</span>
+                    </div>
+                    <h5 style="font-size:1rem;font-weight:700;margin-bottom:8px;">@step.title</h5>
+                    <p style="color:#64748B;font-size:0.9rem;margin:0;">@step.desc</p>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- â”€â”€ FEATURED SERVICES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+<section class="section-gap">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <div>
+                <h2 class="section-title mb-1">
+                    @if (!string.IsNullOrWhiteSpace(Model.SearchKeyword) || !string.IsNullOrWhiteSpace(Model.SearchCity) || Model.SearchCategoryId.HasValue)
+                    {
+                        <span>Search Results</span>
+                    }
+                    else
+                    {
+                        <text>Featured <span>Services</span></text>
+                    }
+                </h2>
+                <div class="gradient-divider" style="margin-bottom:0;"></div>
+            </div>
+            <a asp-controller="Services" asp-action="Browse" class="btn-hub-ghost">
+                View All <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        @if (!Model.FeaturedServices.Any())
+        {
+            <div class="empty-state">
+                <div class="empty-state-icon"><i class="fas fa-search"></i></div>
+                <h4>No services found</h4>
+                <p>Try adjusting your search criteria or browse all categories.</p>
+                <a asp-controller="Services" asp-action="Browse" class="btn-hub-primary mt-3">Browse All Services</a>
+            </div>
+        }
+        else
+        {
+            <div class="row g-4">
+                @foreach (var service in Model.FeaturedServices)
+                {
+                    <div class="col-12 col-sm-6 col-lg-4 fade-in-up">
+                        <div class="card-hub h-100">
+                            <div style="overflow:hidden;height:200px;position:relative;">
+                                <img src="@(service.ImageUrl ?? "/images/default-service.svg")"
+                                     class="card-img-top" alt="@service.Title" loading="lazy"
+                                     onerror="this.onerror=null;this.src='/images/default-service.svg';" />
+                                <div style="position:absolute;top:12px;left:12px;">
+                                    <span class="badge" style="background:rgba(15,23,42,0.75);color:white;font-size:0.75rem;backdrop-filter:blur(8px);border-radius:999px;padding:4px 12px;">
+                                        <i class="@(service.Category?.IconClass ?? "fas fa-wrench") me-1"></i>@service.Category?.Name
+                                    </span>
+                                </div>
+                                @if (service.Provider?.IsVerified == true)
+                                {
+                                    <div style="position:absolute;top:12px;right:12px;">
+                                        <span class="verified-badge"><i class="fas fa-check-circle"></i>Verified</span>
+                                    </div>
+                                }
+                            </div>
+                            <div class="card-body d-flex flex-column">
+                                <h5 style="font-size:0.95rem;font-weight:700;margin-bottom:8px;color:#0F172A;" class="truncate-2">@service.Title</h5>
+
+                                <!-- Provider -->
+                                <div class="d-flex align-items-center gap-2 mb-3">
+                                    <div class="avatar-placeholder" style="width:28px;height:28px;font-size:0.7rem;">
+                                        @(service.Provider?.FullName?.FirstOrDefault().ToString().ToUpper() ?? "P")
+                                    </div>
+                                    <span style="font-size:0.82rem;color:#64748B;font-weight:500;">@service.Provider?.FullName</span>
+                                    @if (!string.IsNullOrEmpty(service.City))
+                                    {
+                                        <span style="font-size:0.75rem;color:#94A3B8;">
+                                            <i class="fas fa-map-marker-alt me-1"></i>@service.City
+                                        </span>
+                                    }
+                                </div>
+
+                                <!-- Rating -->
+                                @if (service.ReviewCount > 0)
+                                {
+                                    <div class="d-flex align-items-center gap-2 mb-3">
+                                        <div class="star-rating" style="font-size:0.8rem;">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                <i class="@(i <= (int)Math.Round(service.AverageRating) ? "fas fa-star" : "far fa-star")"></i>
+                                            }
+                                        </div>
+                                        <span style="font-size:0.8rem;color:#64748B;">@service.AverageRating.ToString("F1") (@service.ReviewCount reviews)</span>
+                                    </div>
+                                }
+
+                                <div class="mt-auto d-flex align-items-center justify-content-between pt-2" style="border-top:1px solid #E2E8F0;">
+                                    <div>
+                                        <span class="price-tag">&#8377;@service.Price.ToString("N0")</span>
+                                        <span class="price-type-badge ms-1">@service.PriceType.ToString().ToLower()</span>
+                                    </div>
+                                    <a asp-controller="Services" asp-action="Details" asp-route-id="@service.Id"
+                                       class="btn-hub-primary" style="padding:8px 16px;font-size:0.8rem;">
+                                        View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</section>
+
+<!-- â”€â”€ CTA SECTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+<section class="section-gap" style="background:linear-gradient(135deg,#0F172A,#1E1B4B);">
+    <div class="container text-center">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <h2 style="color:white;font-size:2.2rem;font-weight:800;margin-bottom:16px;">
+                    Are you a <span style="background:linear-gradient(135deg,#818CF8,#38BDF8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Service Professional?</span>
+                </h2>
+                <p style="color:rgba(255,255,255,0.65);font-size:1.05rem;margin-bottom:32px;">
+                    Join thousands of verified providers on ServiceHub. Create your profile and start receiving bookings today.
+                </p>
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    @if (!User.Identity?.IsAuthenticated == true)
+                    {
+                        <a asp-controller="Account" asp-action="Register" class="btn-hub-primary">
+                            <i class="fas fa-rocket me-2"></i>Join as Provider
+                        </a>
+                        <a asp-controller="Services" asp-action="Browse" class="btn-hub-outline" style="color:white;border-color:rgba(255,255,255,0.35);">
+                            <i class="fas fa-search me-2"></i>Browse Services
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Services" asp-action="Browse" class="btn-hub-primary">
+                            <i class="fas fa-search me-2"></i>Browse All Services
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

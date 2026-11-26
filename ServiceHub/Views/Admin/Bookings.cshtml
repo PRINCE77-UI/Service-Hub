@@ -1,0 +1,88 @@
+@using ServiceHub.Models
+@model List<ServiceHub.Models.Booking>
+@{
+    ViewData["Title"] = "All Bookings";
+}
+
+<div style="background:linear-gradient(135deg,#0F172A,#1E1B4B);padding:40px 0 28px;">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 style="color:white;font-weight:800;font-size:1.8rem;margin-bottom:6px;">
+                    <i class="fas fa-calendar-alt me-2" style="color:#818CF8;"></i>System Bookings
+                </h1>
+                <p style="color:rgba(255,255,255,0.6);margin:0;">Audit view of all platform transactions</p>
+            </div>
+            <a asp-controller="Admin" asp-action="Dashboard" class="btn-hub-ghost" style="color:white;border-color:rgba(255,255,255,0.2);">
+                <i class="fas fa-arrow-left me-1"></i>Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container" style="padding:40px 15px;">
+    <div class="mb-4">
+        <div class="input-group" style="max-width:400px;">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
+            <input type="text" id="bookingSearch" class="form-control" placeholder="Search by customer, provider, or ID..." />
+        </div>
+    </div>
+
+    <div class="card-hub overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hub mb-0" id="bookingsTable">
+                <thead>
+                    <tr>
+                        <th>ID / Date</th>
+                        <th>Service & Category</th>
+                        <th>Customer</th>
+                        <th>Provider</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var booking in Model)
+                    {
+                        <tr data-search="#@booking.Id @booking.Customer?.FullName @booking.Service?.Provider?.FullName @booking.Service?.Title">
+                            <td>
+                                <div style="font-weight:700;color:#4F46E5;">#@booking.Id</div>
+                                <div style="font-size:0.8rem;color:#64748B;">@booking.BookingDate.ToString("MMM d, yyyy")</div>
+                            </td>
+                            <td>
+                                <div style="font-weight:600;font-size:0.88rem;" class="truncate-2" style="max-width:200px;">@booking.Service?.Title</div>
+                                <div style="font-size:0.75rem;color:#94A3B8;"><i class="@(booking.Service?.Category?.IconClass ?? "fas fa-tag") me-1 text-primary"></i>@booking.Service?.Category?.Name</div>
+                            </td>
+                            <td>
+                                <div style="font-weight:600;font-size:0.85rem;">@booking.Customer?.FullName</div>
+                                <div style="font-size:0.75rem;color:#94A3B8;">@booking.Customer?.Email</div>
+                            </td>
+                            <td>
+                                <div style="font-weight:600;font-size:0.85rem;">@booking.Service?.Provider?.FullName</div>
+                                @if (booking.Service?.Provider?.IsVerified == true)
+                                {
+                                    <span class="verified-badge" style="font-size:0.6rem;"><i class="fas fa-check-circle"></i></span>
+                                }
+                            </td>
+                            <td style="font-weight:700;color:#0F172A;">&#8377;@booking.TotalAmount.ToString("N0")</td>
+                            <td>
+                                <span class="badge-status badge-@booking.Status.ToString().ToLower()">@booking.Status</span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    document.getElementById('bookingSearch').addEventListener('input', function () {
+        const q = this.value.toLowerCase();
+        document.querySelectorAll('#bookingsTable tbody tr').forEach(row => {
+            row.style.display = row.dataset.search.toLowerCase().includes(q) ? '' : 'none';
+        });
+    });
+</script>
+}

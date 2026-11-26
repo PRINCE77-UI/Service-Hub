@@ -1,0 +1,242 @@
+@using ServiceHub.Models
+@model ServiceHub.Models.ViewModels.ProviderDashboardViewModel
+@{
+    ViewData["Title"] = "Provider Dashboard";
+}
+
+<div style="background:linear-gradient(135deg,#0F172A,#064E3B 80%);padding:48px 0 32px;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 style="color:white;font-weight:800;font-size:2rem;margin-bottom:8px;">
+                    <i class="fas fa-tachometer-alt me-2" style="color:#34D399;"></i>Provider Dashboard
+                </h1>
+                <p style="color:rgba(255,255,255,0.6);margin:0;">Manage your services and bookings</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a asp-controller="Provider" asp-action="CreateService" class="btn-hub-primary">
+                    <i class="fas fa-plus me-2"></i>Add New Service
+                </a>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="row g-3 mt-4">
+            <div class="col-6 col-md-3">
+                <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:20px;text-align:center;">
+                    <div style="font-size:2rem;font-weight:800;color:white;font-family:'Plus Jakarta Sans',sans-serif;">@Model.TotalBookings</div>
+                    <div style="font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:4px;">Total Bookings</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:20px;text-align:center;">
+                    <div style="font-size:2rem;font-weight:800;color:#FBBF24;font-family:'Plus Jakarta Sans',sans-serif;">@Model.PendingBookings.Count</div>
+                    <div style="font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:4px;">Pending</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:20px;text-align:center;">
+                    <div style="font-size:2rem;font-weight:800;color:#34D399;font-family:'Plus Jakarta Sans',sans-serif;">@Model.CompletedBookings.Count</div>
+                    <div style="font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:4px;">Completed</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:20px;text-align:center;">
+                    <div style="font-size:2rem;font-weight:800;color:#818CF8;font-family:'Plus Jakarta Sans',sans-serif;">&#8377;@Model.TotalRevenue.ToString("N0")</div>
+                    <div style="font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:4px;">Total Revenue</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container" style="padding:40px 15px;">
+    <!-- Tabs -->
+    <ul class="nav nav-tabs-hub mb-4">
+        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" data-bs-target="#pendingTab"><i class="fas fa-clock me-1"></i>Pending <span class="badge ms-1" style="background:#F59E0B;font-size:0.7rem;">@Model.PendingBookings.Count</span></a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" data-bs-target="#acceptedTab"><i class="fas fa-check me-1"></i>Accepted <span class="badge ms-1" style="background:#3B82F6;font-size:0.7rem;">@Model.AcceptedBookings.Count</span></a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" data-bs-target="#completedTab2"><i class="fas fa-check-circle me-1"></i>Completed <span class="badge ms-1" style="background:#10B981;font-size:0.7rem;">@Model.CompletedBookings.Count</span></a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" data-bs-target="#servicesTab"><i class="fas fa-list me-1"></i>My Services</a></li>
+    </ul>
+
+    <div class="tab-content">
+        <!-- Pending Bookings -->
+        <div class="tab-pane fade show active" id="pendingTab">
+            @if (!Model.PendingBookings.Any())
+            {
+                <div class="empty-state"><div class="empty-state-icon"><i class="fas fa-inbox"></i></div><h4>No pending bookings</h4><p>New booking requests will appear here.</p></div>
+            }
+            else
+            {
+                <div class="row g-3">
+                    @foreach (var booking in Model.PendingBookings)
+                    {
+                        <div class="col-12">
+                            <div class="booking-card pending">
+                                <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
+                                    <div>
+                                        <h6 style="font-weight:700;margin-bottom:6px;">@booking.Service?.Title</h6>
+                                        <div class="d-flex flex-wrap gap-3" style="font-size:0.82rem;color:#64748B;">
+                                            <span><i class="fas fa-user me-1"></i>@booking.Customer?.FullName</span>
+                                            <span><i class="fas fa-calendar me-1"></i>@booking.BookingDate.ToString("MMM d, yyyy")</span>
+                                            <span><i class="fas fa-clock me-1"></i>@DateTime.Today.Add(booking.StartTime).ToString("h:mm tt") – @DateTime.Today.Add(booking.EndTime).ToString("h:mm tt")</span>
+                                            <span><i class="fas fa-rupee-sign me-1"></i>&#8377;@booking.TotalAmount.ToString("N0")</span>
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(booking.Notes))
+                                        {
+                                            <p style="font-size:0.8rem;color:#94A3B8;margin-top:6px;margin-bottom:0;"><i class="fas fa-sticky-note me-1"></i>@booking.Notes</p>
+                                        }
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <form asp-controller="Provider" asp-action="AcceptBooking" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@booking.Id" />
+                                            <button type="submit" class="btn btn-sm" style="background:rgba(16,185,129,0.1);color:#059669;border:1px solid rgba(16,185,129,0.25);border-radius:8px;font-size:0.82rem;padding:6px 16px;">
+                                                <i class="fas fa-check me-1"></i>Accept
+                                            </button>
+                                        </form>
+                                        <form asp-controller="Provider" asp-action="RejectBooking" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@booking.Id" />
+                                            <button type="submit" class="btn btn-sm" data-confirm="Reject this booking?" style="background:rgba(239,68,68,0.08);color:#DC2626;border:1px solid rgba(239,68,68,0.2);border-radius:8px;font-size:0.82rem;padding:6px 16px;">
+                                                <i class="fas fa-times me-1"></i>Reject
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Accepted Bookings -->
+        <div class="tab-pane fade" id="acceptedTab">
+            @if (!Model.AcceptedBookings.Any())
+            {
+                <div class="empty-state"><div class="empty-state-icon"><i class="fas fa-calendar-check"></i></div><h4>No accepted bookings</h4></div>
+            }
+            else
+            {
+                <div class="row g-3">
+                    @foreach (var booking in Model.AcceptedBookings)
+                    {
+                        <div class="col-12">
+                            <div class="booking-card accepted">
+                                <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
+                                    <div>
+                                        <h6 style="font-weight:700;margin-bottom:6px;">@booking.Service?.Title</h6>
+                                        <div class="d-flex flex-wrap gap-3" style="font-size:0.82rem;color:#64748B;">
+                                            <span><i class="fas fa-user me-1"></i>@booking.Customer?.FullName</span>
+                                            <span><i class="fas fa-calendar me-1"></i>@booking.BookingDate.ToString("MMM d, yyyy")</span>
+                                            <span><i class="fas fa-clock me-1"></i>@DateTime.Today.Add(booking.StartTime).ToString("h:mm tt") – @DateTime.Today.Add(booking.EndTime).ToString("h:mm tt")</span>
+                                            <span><i class="fas fa-rupee-sign me-1"></i>&#8377;@booking.TotalAmount.ToString("N0")</span>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge-status badge-accepted"><i class="fas fa-check me-1"></i>Accepted</span>
+                                        <form asp-controller="Provider" asp-action="CompleteBooking" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@booking.Id" />
+                                            <button type="submit" class="btn btn-sm" style="background:rgba(16,185,129,0.1);color:#059669;border:1px solid rgba(16,185,129,0.25);border-radius:8px;font-size:0.82rem;padding:6px 16px;">
+                                                <i class="fas fa-flag-checkered me-1"></i>Mark Complete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Completed -->
+        <div class="tab-pane fade" id="completedTab2">
+            @if (!Model.CompletedBookings.Any())
+            {
+                <div class="empty-state"><div class="empty-state-icon"><i class="fas fa-check-circle"></i></div><h4>No completed bookings yet</h4></div>
+            }
+            else
+            {
+                <div class="card-hub overflow-hidden">
+                    <table class="table table-hub mb-0">
+                        <thead><tr><th>Service</th><th>Customer</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
+                        <tbody>
+                            @foreach (var booking in Model.CompletedBookings)
+                            {
+                                <tr>
+                                    <td style="font-weight:600;font-size:0.88rem;">@booking.Service?.Title</td>
+                                    <td style="font-size:0.88rem;">@booking.Customer?.FullName</td>
+                                    <td style="font-size:0.85rem;color:#64748B;">@booking.BookingDate.ToString("MMM d, yyyy")</td>
+                                    <td style="font-weight:700;color:#4F46E5;">&#8377;@booking.TotalAmount.ToString("N0")</td>
+                                    <td><span class="badge-status badge-completed">Completed</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        <!-- My Services -->
+        <div class="tab-pane fade" id="servicesTab">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 style="font-weight:700;margin:0;">Your Service Listings</h5>
+                <a asp-controller="Provider" asp-action="CreateService" class="btn-hub-primary" style="padding:8px 16px;font-size:0.85rem;">
+                    <i class="fas fa-plus me-1"></i>Add Service
+                </a>
+            </div>
+            @if (!Model.MyServices.Any())
+            {
+                <div class="empty-state">
+                    <div class="empty-state-icon"><i class="fas fa-tools"></i></div>
+                    <h4>No services yet</h4>
+                    <p>Create your first service listing to start receiving bookings.</p>
+                    <a asp-controller="Provider" asp-action="CreateService" class="btn-hub-primary mt-3">Create Service</a>
+                </div>
+            }
+            else
+            {
+                <div class="row g-3">
+                    @foreach (var service in Model.MyServices)
+                    {
+                        <div class="col-12 col-md-6">
+                            <div class="card-hub p-4">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 style="font-weight:700;margin-bottom:4px;">@service.Title</h6>
+                                        <div style="font-size:0.8rem;color:#64748B;margin-bottom:8px;">
+                                            <i class="@(service.Category?.IconClass ?? "fas fa-wrench") me-1 text-primary"></i>@service.Category?.Name
+                                            @if (!string.IsNullOrEmpty(service.City))
+                                            {
+                                                <span class="ms-2"><i class="fas fa-map-marker-alt me-1"></i>@service.City</span>
+                                            }
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="price-tag" style="font-size:1.1rem;">&#8377;@service.Price.ToString("N0")</span>
+                                            <span class="price-type-badge">@service.PriceType.ToString().ToLower()</span>
+                                            @if (service.IsActive)
+                                            {
+                                                <span style="background:rgba(16,185,129,0.1);color:#059669;padding:2px 8px;border-radius:999px;font-size:0.72rem;font-weight:600;">Active</span>
+                                            }
+                                            else
+                                            {
+                                                <span style="background:rgba(239,68,68,0.1);color:#DC2626;padding:2px 8px;border-radius:999px;font-size:0.72rem;font-weight:600;">Inactive</span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <a asp-controller="Provider" asp-action="EditService" asp-route-id="@service.Id"
+                                       class="btn-hub-ghost ms-2" style="padding:6px 14px;font-size:0.78rem;white-space:nowrap;">
+                                        <i class="fas fa-edit me-1"></i>Edit
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

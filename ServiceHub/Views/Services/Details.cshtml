@@ -1,0 +1,209 @@
+@using ServiceHub.Models
+@model ServiceHub.Models.ViewModels.ServiceDetailsViewModel
+@{
+    ViewData["Title"] = Model.Service.Title;
+}
+
+<div class="container" style="max-width:1100px;padding:40px 15px;">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb" style="font-size:0.85rem;">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Services" asp-action="Browse">Services</a></li>
+            <li class="breadcrumb-item active">@Model.Service.Title</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <!-- Left: Service Info -->
+        <div class="col-lg-8">
+            <!-- Hero Image -->
+            <div style="border-radius:16px;overflow:hidden;height:340px;position:relative;margin-bottom:24px;box-shadow:0 8px 32px rgba(0,0,0,0.12);">
+                <img src="@(Model.Service.ImageUrl ?? "/images/default-service.svg")"
+                     alt="@Model.Service.Title" style="width:100%;height:100%;object-fit:cover;"
+                     onerror="this.onerror=null;this.src='/images/default-service.svg';" />
+                <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(15,23,42,0.6) 0%,transparent 50%);">
+                    <div style="position:absolute;bottom:20px;left:20px;right:20px;display:flex;justify-content:space-between;align-items:flex-end;">
+                        <div>
+                            <span style="background:rgba(79,70,229,0.85);color:white;padding:5px 14px;border-radius:999px;font-size:0.8rem;font-weight:600;backdrop-filter:blur(8px);">
+                                <i class="@(Model.Service.Category?.IconClass ?? "fas fa-wrench") me-1"></i>@Model.Service.Category?.Name
+                            </span>
+                        </div>
+                        @if (Model.Service.Provider?.IsVerified == true)
+                        {
+                            <span class="verified-badge"><i class="fas fa-check-circle me-1"></i>Verified Provider</span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service Title & Info -->
+            <div class="card-hub p-4 mb-4">
+                <h1 style="font-size:1.6rem;font-weight:800;color:#0F172A;margin-bottom:12px;">@Model.Service.Title</h1>
+
+                <div class="d-flex flex-wrap gap-3 mb-3" style="font-size:0.85rem;color:#64748B;">
+                    @if (!string.IsNullOrEmpty(Model.Service.City))
+                    {
+                        <span><i class="fas fa-map-marker-alt me-1 text-primary"></i>@Model.Service.City</span>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Service.ServiceArea))
+                    {
+                        <span><i class="fas fa-route me-1 text-primary"></i>@Model.Service.ServiceArea</span>
+                    }
+                    @if (Model.Reviews.Any())
+                    {
+                        <span>
+                            <span class="star-rating" style="font-size:0.85rem;">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <i class="@(i <= (int)Math.Round(Model.AverageRating) ? "fas fa-star" : "far fa-star")"></i>
+                                }
+                            </span>
+                            @Model.AverageRating.ToString("F1") (@Model.Reviews.Count reviews)
+                        </span>
+                    }
+                    @if (Model.Service.WorkDays != null)
+                    {
+                        <span><i class="fas fa-calendar-alt me-1 text-primary"></i>@Model.Service.WorkDays</span>
+                    }
+                    @if (Model.Service.WorkStartTime.HasValue && Model.Service.WorkEndTime.HasValue)
+                    {
+                        <span>
+                            <i class="fas fa-clock me-1 text-primary"></i>
+                            @DateTime.Today.Add(Model.Service.WorkStartTime.Value).ToString("h:mm tt") –
+                            @DateTime.Today.Add(Model.Service.WorkEndTime.Value).ToString("h:mm tt")
+                        </span>
+                    }
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.Service.Description))
+                {
+                    <div style="border-top:1px solid #E2E8F0;padding-top:16px;">
+                        <h5 style="font-size:0.9rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;">About this Service</h5>
+                        <p style="color:#475569;line-height:1.8;white-space:pre-wrap;">@Model.Service.Description</p>
+                    </div>
+                }
+            </div>
+
+            <!-- Reviews -->
+            <div class="card-hub p-4">
+                <h3 style="font-size:1.1rem;font-weight:800;margin-bottom:20px;">
+                    <i class="fas fa-star me-2" style="color:#F59E0B;"></i>
+                    Reviews (@Model.Reviews.Count)
+                </h3>
+
+                @if (!Model.Reviews.Any())
+                {
+                    <div class="empty-state" style="padding:30px;">
+                        <div class="empty-state-icon"><i class="fas fa-comment-alt"></i></div>
+                        <h4>No reviews yet</h4>
+                        <p>Be the first to review this service!</p>
+                    </div>
+                }
+                else
+                {
+                    @foreach (var review in Model.Reviews)
+                    {
+                        <div style="border-bottom:1px solid #F1F5F9;padding-bottom:20px;margin-bottom:20px;" class="@(review == Model.Reviews.Last() ? "border-0 mb-0 pb-0" : "")">
+                            <div class="d-flex align-items-start gap-3">
+                                <div class="avatar-placeholder" style="width:40px;height:40px;font-size:0.9rem;flex-shrink:0;">
+                                    @(review.Customer?.FullName?.FirstOrDefault().ToString().ToUpper() ?? "C")
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <div style="font-weight:700;font-size:0.9rem;">@review.Customer?.FullName</div>
+                                            <div class="star-rating" style="font-size:0.85rem;">
+                                                @for (int i = 1; i <= 5; i++)
+                                                {
+                                                    <i class="@(i <= review.Rating ? "fas fa-star" : "far fa-star")"></i>
+                                                }
+                                            </div>
+                                        </div>
+                                        <span style="font-size:0.75rem;color:#94A3B8;">@review.ReviewDate.ToString("MMM d, yyyy")</span>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(review.Comment))
+                                    {
+                                        <p style="color:#475569;font-size:0.9rem;margin-top:8px;margin-bottom:0;">@review.Comment</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <!-- Right: Booking Sidebar -->
+        <div class="col-lg-4">
+            <div style="position:sticky;top:90px;">
+                <!-- Provider Card -->
+                <div class="card-hub p-4 mb-4">
+                    <h5 style="font-size:0.85rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#64748B;margin-bottom:16px;">Service Provider</h5>
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        @if (!string.IsNullOrEmpty(Model.Service.Provider?.ProfilePictureUrl))
+                        {
+                            <img src="@Model.Service.Provider.ProfilePictureUrl" class="provider-avatar" style="width:56px;height:56px;" alt="Provider"
+                                 onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80';" />
+                        }
+                        else
+                        {
+                            <div class="avatar-placeholder" style="width:56px;height:56px;font-size:1.1rem;">
+                                @(Model.Service.Provider?.FullName?.FirstOrDefault().ToString().ToUpper() ?? "P")
+                            </div>
+                        }
+                        <div>
+                            <div style="font-weight:700;font-size:1rem;">@Model.Service.Provider?.FullName</div>
+                            @if (Model.Service.Provider?.IsVerified == true)
+                            {
+                                <span class="verified-badge mt-1"><i class="fas fa-check-circle me-1"></i>Verified</span>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.Service.Provider?.City))
+                            {
+                                <div style="font-size:0.8rem;color:#94A3B8;margin-top:2px;"><i class="fas fa-map-marker-alt me-1"></i>@Model.Service.Provider.City</div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pricing & Book -->
+                <div class="card-hub p-4">
+                    <div class="d-flex align-items-baseline gap-2 mb-3">
+                        <span class="price-tag" style="font-size:2rem;">&#8377;@Model.Service.Price.ToString("N0")</span>
+                        <span class="price-type-badge">/ @Model.Service.PriceType.ToString().ToLower()</span>
+                    </div>
+
+                    @if (Model.CanBook)
+                    {
+                        <a asp-controller="Bookings" asp-action="Create" asp-route-serviceId="@Model.Service.Id"
+                           class="btn-hub-primary w-100 d-block text-center mb-3" style="padding:14px;">
+                            <i class="fas fa-calendar-plus me-2"></i>Book This Service
+                        </a>
+                    }
+                    else if (!User.Identity?.IsAuthenticated == true)
+                    {
+                        <a asp-controller="Account" asp-action="Login" class="btn-hub-primary w-100 d-block text-center mb-3" style="padding:14px;">
+                            <i class="fas fa-sign-in-alt me-2"></i>Sign In to Book
+                        </a>
+                        <p style="font-size:0.8rem;color:#94A3B8;text-align:center;">Create a Customer account to book services.</p>
+                    }
+                    else if (User.IsInRole("ServiceProvider") || User.IsInRole("Admin"))
+                    {
+                        <div class="text-center p-3" style="background:#F8FAFC;border-radius:10px;font-size:0.85rem;color:#64748B;">
+                            <i class="fas fa-info-circle me-1"></i>Only customers can book services.
+                        </div>
+                    }
+
+                    <div style="border-top:1px solid #F1F5F9;padding-top:16px;margin-top:8px;">
+                        <div class="d-flex flex-column gap-2" style="font-size:0.82rem;color:#64748B;">
+                            <div><i class="fas fa-shield-alt me-2 text-success"></i>Verified & background checked</div>
+                            <div><i class="fas fa-clock me-2 text-primary"></i>Real-time slot conflict detection</div>
+                            <div><i class="fas fa-envelope me-2 text-amber"></i>Email confirmation sent instantly</div>
+                            <div><i class="fas fa-star me-2" style="color:#F59E0B;"></i>Money-back guarantee</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
