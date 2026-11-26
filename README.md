@@ -194,29 +194,6 @@ ServiceHub/
 └── ServiceHub.csproj
 ```
 
-## 📸 Screenshots
-
-Add screenshots of your actual application to the `screenshots` folder.
-
-### 🏠 Home Page
-
-![Home Page](screenshots/home.png)
-
-### 👤 Customer Dashboard
-
-![Customer Dashboard](screenshots/customer-dashboard.png)
-
-### 🧰 Provider Dashboard
-
-![Provider Dashboard](screenshots/provider-dashboard.png)
-
-### 🛡️ Admin Dashboard
-
-![Admin Dashboard](screenshots/admin-dashboard.png)
-
-### 🛒 Service Listing
-
-![Service Listing](screenshots/services.png)
 
 ## 🚀 Getting Started
 
@@ -380,11 +357,6 @@ We would like to thank the following technologies and platforms that helped us d
 - GitHub: [Rishav-kumar06](https://github.com/Rishav-kumar06)
 - LinkedIn: [Rishav Kumar](https://www.linkedin.com/in/rishav-kumar-02196a340/)
 
-## 📜 License
-
-This project is developed for educational and learning purposes.
-
----
 
 <div align="center">
 
