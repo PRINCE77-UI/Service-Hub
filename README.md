@@ -99,31 +99,10 @@ The database is created, migrated and seeded automatically on first startup.
 
 Update `appsettings.json` if needed:
 
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=(local)\\SQLEXPRESS;Database=ServiceHubDb;Trusted_Connection=True;TrustServerCertificate=True"
-  },
-  "Email": {
-    "SmtpHost": "localhost",
-    "SmtpPort": "1025",
-    "FromEmail": "noreply@servicehub.com",
-    "FromName": "ServiceHub"
-  }
-}
-```
 
 > 🔒 Never commit real SMTP passwords or production connection strings. Use [User Secrets](https://learn.microsoft.com/aspnet/core/security/app-secrets) or environment variables.
 
 The app runs at `https://localhost:7184` or `http://localhost:5052`.
-
-## 🔑 Demo Account
-
-| Role | Email | Password |
-|------|-------|----------|
-| Admin | `admin@servicehub.com` | `Admin@123!` |
-
-Seeded provider and customer accounts are also created automatically. Change all default passwords before any real deployment.
 
 ## 🗺️ Roadmap
 
@@ -143,9 +122,6 @@ Seeded provider and customer accounts are also created automatically. Change all
 
 ## 👥 Authors
 
-- **PRINCE77-UI** – [GitHub](https://github.com/PRINCE77-UI)
-- *Partner name* – [GitHub](https://github.com/your-partner-username)
+- **PRINCE KUMAR** – [GitHub](https://github.com/PRINCE77-UI)
+- **RISHAV KUMAR** – [GitHub](https://github.com/Rishav-kumar06)
 
-## 📄 License
-
-This project is licensed under the MIT License.
